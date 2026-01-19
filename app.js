@@ -15,9 +15,7 @@ function set(k,v){ localStorage.setItem(k,JSON.stringify(v)); }
 
 /* ---------- Time Filter ---------- */
 function inTradeWindow(){
-  const d=new Date(),h=d.getHours(),m=d.getMinutes();
-  const t=h*60+m;
-  return (t>=570 && t<=690) || (t>=930 && t<=960);
+  return true; // always allow scanner
 }
 
 /* ---------- Score ---------- */
