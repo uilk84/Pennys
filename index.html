@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PennyS</title>
+<style>
+body{background:#1a1d23;color:#e2e8f0;font-family:Inter,sans-serif;margin:0}
+table{width:100%;border-collapse:collapse}
+th,td{padding:8px;border-bottom:1px solid #333}
+a{color:#00d2d3;text-decoration:none}
+</style>
+</head>
+<body>
+<h2>PennyS Scanner</h2>
+<table>
+<thead><tr><th>Sym</th><th>Price</th><th>Score</th><th>Vol</th><th></th></tr></thead>
+<tbody id="rows"></tbody>
+</table>
+
+<script src="app.js"></script>
+<script>
+let stocks=[];
+async function load(){
+  if(!inTradeWindow()){
+    rows.innerHTML='<tr><td colspan="5">Outside trade window</td></tr>';
+    return;
+  }
+  const r=await fetch(`https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?apiKey=${API_KEY}`);
+  const d=await r.json();
+  stocks=d.tickers
+    .filter(x=>x.lastTrade?.p>=0.3 && x.lastTrade.p<=5 && x.day?.v>=1000000 && x.todaysChangePerc>=5)
+    .map(x=>{
+      const obj={sym:x.ticker,p:x.lastTrade.p,c:x.todaysChangePerc,v:x.day.v,hod:x.day.h,vs:x.day.v/(x.prevDay?.v||x.day.v)};
+      obj.score=score(obj);
+      return obj;
+    })
+    .filter(x=>x.vs>=2 && x.score>=70)
+    .sort((a,b)=>b.score-a.score)
+    .slice(0,15);
+
+  rows.innerHTML=stocks.map(x=>`
+    <tr>
+      <td><b>${x.sym}</b></td>
+      <td>$${x.p.toFixed(2)}</td>
+      <td>${x.score}</td>
+      <td>${fmt(x.v)}</td>
+      <td><a href="stock-details.html?symbol=${x.sym}">→</a></td>
+    </tr>`).join('') || '<tr><td colspan="5">No A+ setups</td></tr>';
+
+  checkAlerts(stocks);
+}
+load(); setInterval(load,15000);
+</script>
+</body>
+</html>

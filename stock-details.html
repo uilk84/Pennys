@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Details</title>
+</head>
+<body>
+<script src="app.js"></script>
+<script>
+const sym=new URLSearchParams(location.search).get('symbol');
+document.body.innerHTML=`
+<h2>${sym}</h2>
+<button onclick="addWL('${sym}')">⭐ Add to Watchlist</button>
+
+<h3>Define Thesis</h3>
+<label>Breakout</label><br>
+<input id="bo"><br>
+<label>Invalidation</label><br>
+<input id="inv"><br><br>
+
+<button onclick="addAlert('${sym}',+bo.value,+inv.value)">Save Alerts</button>
+
+<h3>Checklist</h3>
+<ul>
+<li><input type="checkbox"> Catalyst</li>
+<li><input type="checkbox"> Volume</li>
+<li><input type="checkbox"> Stop Defined</li>
+<li><input type="checkbox"> No FOMO</li>
+</ul>
+
+<p><b>If any box unchecked → NO TRADE.</b></p>
+<a href="index.html">← Back</a>
+`;
+</script>
+</body>
+</html>

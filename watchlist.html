@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Watchlist</title>
+</head>
+<body>
+<h2>Watchlist</h2>
+<div id="rows"></div>
+
+<script src="app.js"></script>
+<script>
+async function load(){
+  const wl=get('watchlist',[]);
+  if(!wl.length){rows.innerHTML='Empty';return;}
+  const r=await fetch(`https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?apiKey=${API_KEY}`);
+  const d=await r.json();
+  rows.innerHTML=wl.map(w=>{
+    const s=d.tickers.find(x=>x.ticker===w.sym);
+    return `
+      <div>
+        <b>${w.sym}</b>
+        ${s?`$${s.lastTrade.p.toFixed(2)} (${s.todaysChangePerc.toFixed(2)}%)`:''}
+        <button onclick="removeWL('${w.sym}')">✖</button>
+      </div>
+    `;
+  }).join('');
+  checkAlerts(d.tickers.map(x=>({sym:x.ticker,p:x.lastTrade.p})));
+}
+load(); setInterval(load,15000);
+</script>
+</body>
+</html>
